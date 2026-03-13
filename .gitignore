@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# 가상 환경
+.venv/
+venv/
+env/
+
+# 환경변수 (비밀키 포함)
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 테스트 / 커버리지
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# uv
+.uv/
