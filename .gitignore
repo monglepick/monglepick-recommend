@@ -14,16 +14,20 @@ env/
 
 # 환경변수 (비밀키 포함)
 .env
+.env.*
+!.env.example
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
 
 # 테스트 / 커버리지
 .pytest_cache/
@@ -33,3 +37,15 @@ coverage.xml
 
 # uv
 .uv/
+
+# Claude Code
+.claude/
+
+# 대용량 데이터
+*.csv
+*.parquet
+*.pickle
+*.pkl
+
+# Logs
+*.log
