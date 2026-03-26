@@ -11,7 +11,8 @@ Spring Boot 백엔드(monglepick-backend)와 공유하는 설정:
 
 from functools import lru_cache
 
-from pydantic_settings import BaseSettings
+from pydantic import AliasChoices, Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -19,17 +20,28 @@ class Settings(BaseSettings):
     애플리케이션 설정 클래스
 
     환경변수 또는 .env 파일에서 값을 읽어옵니다.
-    모든 필드에 기본값이 있어 로컬 개발 시 .env 없이도 기동 가능합니다.
+    민감한 값(DB 계정, JWT 시크릿)은 반드시 .env 또는 시스템 환경변수로 주입합니다.
     """
+
+    # -----------------------------------------
+    # 애플리케이션 기본 설정
+    # -----------------------------------------
+    APP_NAME: str = Field(...)
+    APP_VERSION: str = Field(...)
+    DEBUG: str = Field(...)
+    API_V1_PREFIX: str = Field(...)
 
     # -----------------------------------------
     # MySQL 설정 (Spring Boot 백엔드와 공유)
     # -----------------------------------------
-    DB_HOST: str = "localhost"
-    DB_PORT: int = 3306
-    DB_NAME: str = "monglepick"
-    DB_USERNAME: str = "monglepick"
-    DB_PASSWORD: str = "monglepick"
+    DB_HOST: str = Field(...)
+    DB_PORT: str = Field(...)
+    DB_NAME: str = Field(...)
+    DB_USERNAME: str = Field(
+        ...,
+        validation_alias=AliasChoices("DB_USERNAME", "DB_USER"),
+    )
+    DB_PASSWORD: str = Field(...)
 
     @property
     def database_url(self) -> str:
@@ -43,9 +55,9 @@ class Settings(BaseSettings):
     # -----------------------------------------
     # Redis 설정
     # -----------------------------------------
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-    REDIS_DB: int = 1  # 0번은 monglepick-agent가 사용, 1번 사용
+    REDIS_HOST: str = Field(...)
+    REDIS_PORT: int = Field(...)
+    REDIS_DB: int = Field(...)  # 0번은 monglepick-agent가 사용, 1번 사용
 
     @property
     def redis_url(self) -> str:
@@ -55,19 +67,19 @@ class Settings(BaseSettings):
     # -----------------------------------------
     # JWT 설정 (Spring Boot 백엔드와 동일 시크릿)
     # -----------------------------------------
-    JWT_SECRET: str = "your-256-bit-secret-key-change-in-production"
-    JWT_ALGORITHM: str = "HS256"
+    JWT_SECRET: str = Field(...)
+    JWT_ALGORITHM: str = Field(...)
 
     # -----------------------------------------
     # 서버 설정
     # -----------------------------------------
-    SERVER_HOST: str = "0.0.0.0"
-    SERVER_PORT: int = 8001
+    SERVER_HOST: str = Field(...)
+    SERVER_PORT: int = Field(...)
 
     # -----------------------------------------
     # CORS 설정
     # -----------------------------------------
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
+    CORS_ORIGINS: str = Field(...)
 
     @property
     def cors_origin_list(self) -> list[str]:
@@ -77,7 +89,7 @@ class Settings(BaseSettings):
     # -----------------------------------------
     # TMDB 이미지 URL
     # -----------------------------------------
-    TMDB_IMAGE_BASE_URL: str = "https://image.tmdb.org/t/p/w500"
+    TMDB_IMAGE_BASE_URL: str = Field(...)
 
     # -----------------------------------------
     # 검색 관련 설정
@@ -99,10 +111,11 @@ class Settings(BaseSettings):
     # 최소 선택 장르 수
     MIN_GENRE_SELECTION: int = 3
 
-    class Config:
-        """pydantic-settings 설정: .env 파일에서 환경변수 로드"""
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 
 @lru_cache()
