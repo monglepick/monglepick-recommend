@@ -30,9 +30,13 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# curl: 헬스체크용
-# tzdata: Asia/Seoul 시간대 지원 (QA #162/#177 근본 해결). agent 서비스와 동일 전략.
-RUN apt-get update && apt-get install -y --no-install-recommends curl tzdata \
+# curl(헬스체크) + tzdata(Asia/Seoul, QA #162/#177) + libgl1/libglib2.0-0(PaddleOCR cv2 libGL.so.1)
+# 2026-04-24: libGL.so.1 누락으로 컨테이너 기동 시 import cv2 실패 — 운영 배포 실패 확인
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl \
+        tzdata \
+        libgl1 \
+        libglib2.0-0 \
     && ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime \
     && echo "Asia/Seoul" > /etc/timezone \
     && rm -rf /var/lib/apt/lists/*
